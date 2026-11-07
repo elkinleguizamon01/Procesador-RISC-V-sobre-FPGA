@@ -192,6 +192,7 @@ begin
       when "001"  => ALUResulti <= sum;
       when "010"  => ALUResulti <= a and b;
       when "011"  => ALUResulti <= a or b;         
+      when "100"  => ALUResulti <= a xor b;        -- xor, xori
       when "101"  => ALUResulti <= (0 => (sum(31) xor v), others => '0');
       when others => ALUResulti <= (others => 'X');
     end case;
@@ -253,7 +254,11 @@ begin
   process(opb5, funct3, funct7b5, ALUOp, RtypeSub) begin
     case ALUOp is
       when "00" =>                     ALUControl <= "000"; -- addition
-      when "01" =>                     ALUControl <= "001"; -- subtraction
+      when "01" =>     if funct3 = "100" then
+                         ALUControl <= "101"; -- blt: slt
+                       else
+                         ALUControl <= "001"; -- beq: subtraction
+                       end if;
       when others => case funct3 is           -- R-type or I-type ALU
                        when "000" => if RtypeSub = '1' then
                                        ALUControl <= "001"; -- sub
@@ -263,6 +268,7 @@ begin
                        when "010" =>   ALUControl <= "101"; -- slt, slti
                        when "110" =>   ALUControl <= "011"; -- or, ori
                        when "111" =>   ALUControl <= "010"; -- and, andi
+                       when "100" =>   ALUControl <= "100"; -- xor, xori
                        when others =>  ALUControl <= "---"; -- unknown
                      end case;
     end case;
@@ -391,13 +397,16 @@ architecture struct of controller is
   signal ALUOp:   STD_LOGIC_VECTOR(1 downto 0);
   signal Branch:  STD_LOGIC;
   signal JumpInt: STD_LOGIC;
+  signal BrTaken: STD_LOGIC;
 begin
   md: maindec port map(op, ResultSrc, MemWrite, Branch,
                        ALUSrc, RegWrite, JumpInt, ImmSrc, ALUOp);
   ad: aludec port map(op(5), funct3, funct7b5, ALUOp, ALUControl);
 
   Jump  <= JumpInt;
-  PCSrc <= (Branch and Zero) or JumpInt;
+  -- beq salta con Zero=1 (a-b=0); blt usa slt (resultado 1 si a<b), salta con Zero=0
+  BrTaken <= Zero when funct3 /= "100" else not Zero;
+  PCSrc   <= (Branch and BrTaken) or JumpInt;
 end;
 
 library IEEE;
