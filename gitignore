@@ -1,0 +1,32 @@
+# Quartus Prime
+db/
+incremental_db/
+output_files/
+simulation/
+greybox_tmp/
+*.qws
+*.rpt
+*.summary
+*.smsg
+*.done
+*.jdi
+*.pin
+*.sld
+*.sof
+*.pof
+*.jic
+*.map
+*.qarlog
+*.cdf.bak
+*.bak
+*.tmp
+
+# ModelSim / simulación
+work/
+transcript
+vsim.wlf
+*.vcd
+
+# Sistema
+.DS_Store
+Thumbs.db
