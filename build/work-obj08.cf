@@ -1,0 +1,49 @@
+v 4
+file . "../sim/tb_convertir.vhd" "52068628fcd1bef08aa516461897a293a96b824a" "20261109000242.673":
+  entity tb_convertir at 4( 174) + 0 on 145;
+  architecture sim of tb_convertir at 11( 273) + 0 on 146;
+file . "../src/programs/mem_prog_4_convertir.vhd" "855858882515a253c72c364f3a7dbc41036fe0c8" "20261109000242.672":
+  entity mem_prog at 1( 0) + 0 on 141;
+  architecture behave of mem_prog at 11( 214) + 0 on 142;
+file . "../sim/tb_xor.vhd" "06bd66b3ae2c90238ba063c653cfa8b1d287428a" "20261109000242.315":
+  entity tb_xor at 3( 127) + 0 on 77;
+  architecture sim of tb_xor at 10( 220) + 0 on 78;
+file . "../src/riscvsingle.vhd" "c6e3cd498a66d00781fc86afbfeaa3654372b954" "20261109000242.671":
+  entity mux2 at 1( 0) + 0 on 113;
+  architecture behave of mux2 at 12( 287) + 0 on 114;
+  entity mux3 at 17( 365) + 0 on 115;
+  architecture behave of mux3 at 28( 685) + 0 on 116;
+  entity flopr at 38( 901) + 0 on 117;
+  architecture asynchronous of flopr at 50( 1235) + 0 on 118;
+  entity flopenr at 59( 1443) + 0 on 119;
+  architecture asynchronous of flopenr at 71( 1802) + 0 on 120;
+  entity adder at 80( 2038) + 0 on 121;
+  architecture behave of adder at 90( 2260) + 0 on 122;
+  entity extend at 95( 2361) + 0 on 123;
+  architecture behave of extend at 105( 2616) + 0 on 124;
+  entity regfile at 127( 3365) + 0 on 125;
+  architecture behave of regfile at 140( 3745) + 0 on 126;
+  entity alu at 164( 4569) + 0 on 127;
+  architecture behave of alu at 176( 4894) + 0 on 128;
+  entity maindec at 205( 6104) + 0 on 129;
+  architecture behave of maindec at 219( 6567) + 0 on 130;
+  entity aludec at 238( 7298) + 0 on 131;
+  architecture behave of aludec at 250( 7642) + 0 on 132;
+  entity datapath at 278( 8960) + 0 on 133;
+  architecture struct of datapath at 297( 9765) + 0 on 134;
+  entity controller at 362( 12612) + 0 on 135;
+  architecture struct of controller at 379( 13247) + 0 on 136;
+  entity riscvsingle at 412( 14531) + 0 on 137;
+  architecture struct of riscvsingle at 425( 15008) + 0 on 138;
+file . "../src/mem_datos.vhd" "67d45363829a06a08759a068c618a68b48f64ead" "20261109000242.671":
+  entity mem_datos at 1( 0) + 0 on 139;
+  architecture behave of mem_datos at 16( 467) + 0 on 140;
+file . "../src/sistema.vhd" "359d033fdc0aedbc515d4164711473f60f246346" "20261109000242.672":
+  entity sistema at 1( 0) + 0 on 143;
+  architecture struct of sistema at 13( 347) + 0 on 144;
+file . "../sim/tb_suma.vhd" "8e757acdf1e45ecef72642ab7af0623cb2004034" "20261109000240.405":
+  entity tb_suma at 3( 112) + 0 on 43;
+  architecture sim of tb_suma at 10( 206) + 0 on 44;
+file . "../sim/tb_blt.vhd" "ea5e2038dec36dd92c99d7ecabbc5214b1f3a6ba" "20261109000242.498":
+  entity tb_blt at 4( 190) + 0 on 111;
+  architecture sim of tb_blt at 11( 283) + 0 on 112;
