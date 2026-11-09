@@ -13,7 +13,7 @@ Implementación en VHDL de un procesador **RISC-V de 32 bits monociclo** conecta
 - ALU con operación XOR y comparación con signo (`slt`) para soportar `xor/xori` y `blt`.
 - E/S mapeada en memoria (interruptores, pulsadores, display y LEDs).
 - Divisor de reloj con dos modos: **automático** (reloj lento) y **paso a paso** (con pulsador antirrebote).
-- Cuatro programas de ejemplo intercambiables.
+- Cuatro programas de ejemplo intercambiables, cada uno con su testbench autoverificable.
 
 ## Estructura del repositorio
 
@@ -29,11 +29,17 @@ Implementación en VHDL de un procesador **RISC-V de 32 bits monociclo** conecta
 │   ├── riscvsingle.vhd    # Procesador (datapath, controlador, ALU, regfile, etc.)
 │   ├── mem_datos.vhd      # Memoria de datos + periféricos mapeados
 │   └── mem_prog.vhd       # Programa activo (copia de uno de programs/)
-└── programs/
-    ├── mem_prog_1_suma.vhd       # Suma 1..N
-    ├── mem_prog_2_xor.vhd        # XOR con constantes
-    ├── mem_prog_3_blt.vhd        # Comparaciones con blt
-    └── mem_prog_4_convertir.vhd  # Binario a decimal (BCD)
+├── programs/
+│   ├── mem_prog_1_suma.vhd       # Suma 1..N
+│   ├── mem_prog_2_xor.vhd        # XOR con constantes
+│   ├── mem_prog_3_blt.vhd        # Comparaciones con blt
+│   └── mem_prog_4_convertir.vhd  # Binario a decimal (BCD)
+└── sim/
+    ├── tb_suma.vhd        # Testbench del programa 1
+    ├── tb_xor.vhd         # Testbench del programa 2
+    ├── tb_blt.vhd         # Testbench del programa 3
+    ├── tb_convertir.vhd   # Testbench del programa 4
+    └── run_ghdl.sh        # Script de simulación con GHDL
 ```
 
 > `riscvsingle.vhd` agrupa varias entidades: `mux2`, `mux3`, `flopr`, `flopenr`, `adder`, `extend`, `regfile`, `alu`, `maindec`, `aludec`, `datapath`, `controller` y `riscvsingle`.
@@ -105,10 +111,44 @@ fin:    sw   t1, 208(zero)    # HEX
 alto:   j    alto
 ```
 
+## Simulación y testbenches
+
+Cada programa tiene un testbench autoverificable en `sim/`. Todos instancian la entidad `sistema` (CPU + memorias), generan un reloj de 50 MHz, aplican un reset, ponen un valor en `SW`, esperan a que termine el programa y comparan `HEX` y `LEDR` con el valor esperado. Al final imprimen `TODAS LAS PRUEBAS PASARON` o el número de pruebas que fallaron.
+
+| Testbench | Programa | Valores de `SW` probados | Resultado esperado |
+|---|---|---|---|
+| `tb_suma.vhd` | `mem_prog_1_suma` | 0, 1, 5, 10, 100, 255, 511 | `N(N+1)/2` (para 511, los displays muestran los 16 bits bajos y los LEDs los 10 bajos) |
+| `tb_xor.vhd` | `mem_prog_2_xor` | 0, 1, 15, 100, 170, 256, 341, 511 | `SW xor 0x1FF` |
+| `tb_blt.vhd` | `mem_prog_3_blt` | 0, 1, 50, 99, 100, 101, 255, 511 | `4` si `SW < 100`, `5` si `SW >= 100` |
+| `tb_convertir.vhd` | `mem_prog_4_convertir` | 0, 7, 10, 59, 99, 100, 128, 255, 365, 511 | BCD: centenas en bits 11:8, decenas en 7:4, unidades en 3:0 |
+
+### Ejecutar con GHDL
+
+Desde la raíz del repositorio:
+
+```bash
+chmod +x sim/run_ghdl.sh
+./sim/run_ghdl.sh 1     # 1 = suma, 2 = xor, 3 = blt, 4 = convertir
+```
+
+El script compila `src/riscvsingle.vhd`, `src/mem_datos.vhd`, el programa correspondiente de `programs/`, `src/sistema.vhd` y el testbench, ejecuta la simulación y genera `build/<testbench>.vcd`, que puede abrirse con GTKWave:
+
+```bash
+gtkwave build/tb_suma.vcd
+```
+
+Notas sobre la simulación:
+
+- Se compila con `--std=08` porque `maindec` usa una asignación con agregado, propia de VHDL-2008. En ModelSim o Questa usa la opción `-2008`.
+- El script no modifica `src/mem_prog.vhd`: usa directamente el archivo de `programs/`.
+- Los fallos se reportan con `severity error`, que GHDL no usa para detener la simulación. Revisa el mensaje final o agrega `--assert-level=error` al comando `ghdl -r` para que devuelva un código de error.
+- Los testbenches no incluyen `divisor` ni `top_de1`, porque el reloj lento haría la simulación demasiado larga. Solo se verifican la CPU y sus memorias.
+- Si pruebas en ModelSim, compila los mismos archivos en el mismo orden y ejecuta el testbench que corresponda.
+
 ## Cómo compilar y programar (Quartus)
 
 1. Crea un proyecto nuevo en Quartus Prime para el dispositivo de la DE1.
-2. Agrega todos los archivos de `src/` al proyecto.
+2. Agrega todos los archivos de `src/` al proyecto (los de `sim/` y `programs/` no van en el proyecto).
 3. Define `top_de1` como entidad de nivel superior (*Top-Level Entity*).
 4. Asigna los pines (`CLOCK_50`, `KEY`, `SW`, `LEDR`, `HEX0` a `HEX3`) según el manual de la DE1.
 5. Compila y programa la tarjeta con el archivo `.sof`.
